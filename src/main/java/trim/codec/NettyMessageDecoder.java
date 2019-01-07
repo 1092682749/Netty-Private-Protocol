@@ -2,10 +2,13 @@ package trim.codec;
 
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 
+import io.netty.buffer.Unpooled;
 import trim.Header;
 import trim.struct.NettyMessage;
 import io.netty.buffer.ByteBuf;
@@ -13,7 +16,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 public class NettyMessageDecoder extends LengthFieldBasedFrameDecoder {
-
+    private static final Logger log = Logger.getLogger(NettyMessageDecoder.class.getName());
     MarshallingDecoder marshallingDecoder;
 
     public NettyMessageDecoder(int maxFrameLength, int lengthFieldOffset, int lengthFieldLength) throws IOException {
@@ -23,6 +26,13 @@ public class NettyMessageDecoder extends LengthFieldBasedFrameDecoder {
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+        byte[] bytes = new byte[1024];
+//        int a = in.readInt();
+        ByteBuf bf = in.getBytes(0, bytes);
+        bf = Unpooled.copiedBuffer(bytes);
+//        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        System.out.println(bf.readInt());
+        log.info(new String(bytes, "utf-8").trim());
         ByteBuf frame = (ByteBuf) super.decode(ctx, in);
         if (frame == null) {
             return null;
